@@ -18,14 +18,14 @@ public class DeckManager : MonoBehaviour
     {
         for (int i = 0; i < cardPrefabs.Length; i++)
         {
-            Vector3 cardPos = new Vector3(0, i * 0.02f, 0);
-            GameObject card = Instantiate(cardPrefabs[i], cardPos, Quaternion.identity);
+            Vector3 cardPos = new Vector3(0, 1 + i * 0.05f, 0);
+            Quaternion cardRot = Quaternion.Euler(0, 0, 180);
+            GameObject card = Instantiate(cardPrefabs[i], cardPos, cardRot);
             Rigidbody rb = card.GetComponent<Rigidbody>();
             if (rb != null)
             {
                 rb.isKinematic = true;
             }
-            card.GetComponent<CardInteraction>().FlipCard(Vector3.forward, 180);
 
             card.name = "Acorn Card (" + i + ")";
             card.transform.SetParent(this.transform);
@@ -33,6 +33,7 @@ public class DeckManager : MonoBehaviour
             deck.Add(card);
         }
 
+        
         foreach (GameObject card in deck)
         {
             Rigidbody rb = card.GetComponent<Rigidbody>();
@@ -45,12 +46,18 @@ public class DeckManager : MonoBehaviour
 
     public void ShuffleDeck()
     {
-        for (int i = 0; i < deck.Count; i++)
+        for (int i = deck.Count - 1; i > 0; i--)
         {
-                GameObject temp = deck[i];
-                int randomIndex = Random.Range(0, deck.Count);
-                deck[i] = deck[randomIndex];
-                deck[randomIndex] = temp;
+            int randomIndex = Random.Range(0, i + 1);
+            Vector3 tempPosition = deck[i].transform.position;
+            deck[i].transform.position = deck[randomIndex].transform.position;
+            deck[randomIndex].transform.position = tempPosition;
+
+            Rigidbody rb = deck[i].GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.isKinematic = false;
+            }
         }
     }
 }
