@@ -5,11 +5,17 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     public float moveSpeed = 5f; // Speed of camera movement
-    public float lookSpeed = 2f;  // Speed of mouse look
+    public float lookSpeed = .2f;  // Slow down the mouse look for more controlled rotation
     public float verticalMoveSpeed = 2f; // Speed of moving up and down
     public LayerMask tabletopLayer; // Layer for the tabletop
 
-    private float verticalRotation = 0f; // Vertical rotation angle
+    public float edgeThreshold = 0.05f; // Percentage of the screen width/height where camera starts rotating
+    public float screenPadding = 0.1f; // Percentage of screen where the camera should start rotating
+
+    private Vector3 lastMousePos;
+    private bool isRotating = false; // Flag to track if the camera should be rotating
+    private Vector2 exitDirection = Vector2.zero; // Tracks the direction of exit from bounding box
+    private Quaternion targetRotation; // Store the target rotation of the camera
 
     private void Update()
     {
@@ -51,13 +57,13 @@ public class CameraController : MonoBehaviour
         }
 
         // Left mouse button for dragging movement
-        if (Input.GetMouseButton(0) && IsMouseOverTabletop())
-        {
-            float moveX = Input.GetAxis("Mouse X") * moveSpeed * Time.deltaTime;
-            float moveY = Input.GetAxis("Mouse Y") * moveSpeed * Time.deltaTime;
+        //if (Input.GetMouseButton(0) && IsMouseOverTabletop())
+        //{
+            //float moveX = Input.GetAxis("Mouse X") * moveSpeed * Time.deltaTime;
+            //float moveY = Input.GetAxis("Mouse Y") * moveSpeed * Time.deltaTime;
 
-            transform.Translate(-moveX, 0, -moveY); // Move the camera only in X and Z
-        }
+            //transform.Translate(-moveX, 0, -moveY); // Move the camera only in X and Z
+        //}
     }
 
     private void HandleVerticalMovement()
@@ -66,22 +72,95 @@ public class CameraController : MonoBehaviour
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         if (scroll != 0f)
         {
-            // Move the camera up or down based on the scroll input
             transform.position += new Vector3(0, scroll * verticalMoveSpeed, 0);
         }
     }
 
     private void PointCameraToMouse()
     {
-            // Rotate the camera based on mouse movement
-            float mouseX = Input.GetAxis("Mouse X") * lookSpeed;
-            float mouseY = Input.GetAxis("Mouse Y") * lookSpeed;
+        Vector3 currentMousePos = Input.mousePosition;
 
-            verticalRotation -= mouseY; // Adjust vertical rotation
-            verticalRotation = Mathf.Clamp(verticalRotation, -60f, 60f); // Clamp vertical rotation
+        // Check if the mouse is inside the bounding box
+        if (IsMouseInsideBoundingBox(currentMousePos))
+        {
+            isRotating = false; // Stop rotation when the mouse is inside the bounding box
+            return;
+        }
 
-            // Apply rotation to the camera
-            transform.localEulerAngles = new Vector3(verticalRotation, transform.localEulerAngles.y + mouseX, 0);
+        // If the mouse has moved outside the bounding box, start rotating based on exit direction
+        if (!isRotating && !IsMouseInsideBoundingBox(lastMousePos))
+        {
+            isRotating = true; // Start rotating
+            exitDirection = GetMouseExitDirection(currentMousePos); // Track the exit direction
+        }
+
+        // Update exit direction even when the mouse is outside the bounding box
+        if (isRotating)
+        {
+            exitDirection = GetMouseExitDirection(currentMousePos);
+            RotateCameraBasedOnExitDirection();
+        }
+
+        // Update the last mouse position for the next frame
+        lastMousePos = currentMousePos;
+    }
+
+    private bool IsMouseInsideBoundingBox(Vector3 mousePosition)
+    {
+        // Check if the mouse is inside the defined bounding box
+        return mousePosition.x >= Screen.width * screenPadding &&
+               mousePosition.x <= Screen.width * (1 - screenPadding) &&
+               mousePosition.y >= Screen.height * screenPadding &&
+               mousePosition.y <= Screen.height * (1 - screenPadding);
+    }
+
+    private Vector2 GetMouseExitDirection(Vector3 mousePosition)
+    {
+        // Calculate the direction the mouse is leaving the bounding box
+        Vector2 direction = Vector2.zero;
+
+        if (mousePosition.x <= Screen.width * screenPadding) // Left side
+            direction.x = -1;
+        else if (mousePosition.x >= Screen.width * (1 - screenPadding)) // Right side
+            direction.x = 1;
+
+        if (mousePosition.y <= Screen.height * screenPadding) // Bottom side
+            direction.y = -1;
+        else if (mousePosition.y >= Screen.height * (1 - screenPadding)) // Top side
+            direction.y = 1;
+
+        return direction;
+    }
+
+    private void RotateCameraBasedOnExitDirection()
+    {
+        if (Input.GetMouseButton(0)) // Prevent rotation when clicking
+        {
+            return; // No rotation while dragging
+        }
+
+        // Ensure lookSpeed is respected; do nothing if it's zero
+        if (lookSpeed == 0f)
+        {
+            return;
+        }
+
+        // Determine horizontal and vertical edge factors
+        float edgeFactorX = Mathf.Abs(Input.mousePosition.x - Screen.width / 2) / (Screen.width / 2);
+        float edgeFactorY = Mathf.Abs(Input.mousePosition.y - Screen.height / 2) / (Screen.height / 2);
+
+        // Calculate desired rotation angles
+        float horizontalRotation = exitDirection.x * lookSpeed * edgeFactorX * 10; // Horizontal rotation magnitude
+        float verticalRotation = -exitDirection.y * lookSpeed * edgeFactorY * 10; // Vertical rotation magnitude (invert Y)
+
+        // Update the target vertical rotation, clamping to avoid flipping
+        verticalRotation = Mathf.Clamp(verticalRotation + transform.localEulerAngles.x, -60f, 60f);
+
+        // Calculate the target rotation based on the input
+        targetRotation = Quaternion.Euler(verticalRotation, transform.localEulerAngles.y + horizontalRotation, 0);
+
+        // Smoothly interpolate to the target rotation
+        transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * moveSpeed);
     }
 
     private bool IsMouseOverTabletop()

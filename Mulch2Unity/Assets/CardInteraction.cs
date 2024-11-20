@@ -11,18 +11,26 @@ public class CardInteraction : MonoBehaviour
     public float flipDuration = 0.25f;
     public float floatDuration = 0.25f;
 
-    private Camera mainCamera;
-    private bool isBeingHeld = false;
-    private bool mouseHasMoved = false; // Track if the mouse has moved
+    private Vector3 mousePosition;
     private Rigidbody rb;
 
-    private Vector3 initialPosition; // Store the initial position of the card
+    // Set the minimum allowed y position (tabletop level)
+    public float minYPosition = 0f;
 
     void Start()
     {
-        mainCamera = Camera.main;
         rb = GetComponent<Rigidbody>(); // Get the Rigidbody component
-        initialPosition = transform.position; // Store the initial position
+    }
+
+    private Vector3 GetMousePos()
+    {
+        // Get the screen-space position of the object
+        return Camera.main.WorldToScreenPoint(transform.position);
+    }
+
+    void OnMouseOver()
+    {
+        HandleKeys();
     }
 
     void OnMouseDown()
@@ -32,77 +40,80 @@ public class CardInteraction : MonoBehaviour
         // Check for double-click
         if (timeSinceLastClick <= doubleClick)
         {
+            StartCoroutine(FlipCard());
             isFlipped = !isFlipped;
-
-            if (isFlipped)
-            {
-                StartCoroutine(FlipCard(Vector3.forward, 0));
-            }
-            else
-            {
-                StartCoroutine(FlipCard(Vector3.forward, 180));
-            }
         }
         else
         {
-            isBeingHeld = true; // Set the flag to indicate the card is being held
-            mouseHasMoved = false; // Reset the mouse movement flag
+            mousePosition = Input.mousePosition - GetMousePos(); // Store the offset for dragging
             if (rb != null)
             {
                 rb.isKinematic = true; // Disable physics while holding
+                rb.detectCollisions = false;
             }
         }
 
         lastClick = Time.time; // Update last click time
     }
 
+    void OnMouseDrag()
+    {
+        // Follow the mouse position
+        Vector3 newPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition - mousePosition);
+
+        // Clamp the y position to prevent the card from going below the tabletop
+        newPosition.y = Mathf.Max(newPosition.y, minYPosition);
+
+        transform.position = newPosition;
+
+        HandleKeys();
+    }
+
     void OnMouseUp()
     {
-        if (isBeingHeld)
+        if (rb != null)
         {
-            isBeingHeld = false; // Reset the holding state
-            if (rb != null)
-            {
-                rb.isKinematic = false; // Re-enable physics when dropping
-            }
+            rb.isKinematic = false; // Re-enable physics when releasing
+            rb.detectCollisions = true;
         }
     }
 
-    void Update()
+    public void HandleKeys()
     {
-        if (isBeingHeld)
+        if (Input.GetKeyDown(KeyCode.Q)) // Rotate left by 45 degrees
         {
-            // Check if the mouse has moved
-            if (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0)
-            {
-                mouseHasMoved = true; // Set flag to true when the mouse moves
-                FollowMouse(); // Follow the mouse
-            }
+            RotateCard(45f);
+        }
+        else if (Input.GetKeyDown(KeyCode.E)) // Rotate right by 45 degrees
+        {
+            RotateCard(-45f);
+            
+        } else if (Input.GetKeyDown(KeyCode.F))
+        {
+            StartCoroutine(FlipCard());
+            isFlipped = !isFlipped;
         }
     }
 
-    private void FollowMouse()
+    public void RotateCard(float angle)
     {
-        Vector3 currentPos = transform.position;
-        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        Plane plane = new Plane(Vector3.up, currentPos + Vector3.up); // Set the plane slightly above the initial position
-        float hitDistance;
-
-        if (plane.Raycast(ray, out hitDistance))
+        if (isFlipped)
         {
-            Vector3 hitPoint = ray.GetPoint(hitDistance);
-            hitPoint.y = currentPos.y; // Keep the Y position of the card unchanged
-            transform.position = hitPoint; // Update the card's position to the mouse position
+            angle = -angle;
         }
+        transform.Rotate(Vector3.up, angle);
     }
 
-    public IEnumerator FlipCard(Vector3 axis, float angle)
+    public IEnumerator FlipCard()
     {
+        rb.isKinematic = true;
+        rb.detectCollisions = false;
+
         Vector3 currentPos = transform.position; // Store the current position of the card
         Vector3 finPos = currentPos + new Vector3(0, 1.5f, 0);
 
         Quaternion initRot = transform.rotation;
-        Quaternion finRot = Quaternion.Euler(axis * angle);
+        Quaternion finRot = transform.rotation * Quaternion.Euler(0f, 0f, 180f);
         float elapsedTime = 0f;
 
         // Float up
@@ -126,5 +137,7 @@ public class CardInteraction : MonoBehaviour
         }
 
         transform.rotation = finRot;
+        rb.isKinematic = false;
+        rb.detectCollisions = true;
     }
 }
