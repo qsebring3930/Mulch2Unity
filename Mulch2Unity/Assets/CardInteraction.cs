@@ -17,6 +17,8 @@ public class CardInteraction : MonoBehaviour
     // Set the minimum allowed y position (tabletop level)
     public float minYPosition = 0f;
 
+    private bool isheld = false;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>(); // Get the Rigidbody component
@@ -30,7 +32,10 @@ public class CardInteraction : MonoBehaviour
 
     void OnMouseOver()
     {
-        HandleKeys();
+        if (!isheld)
+        {
+            HandleKeys();
+        }
     }
 
     void OnMouseDown()
@@ -59,6 +64,7 @@ public class CardInteraction : MonoBehaviour
     void OnMouseDrag()
     {
         // Follow the mouse position
+        isheld = true;
         Vector3 newPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition - mousePosition);
 
         // Clamp the y position to prevent the card from going below the tabletop
@@ -102,6 +108,7 @@ public class CardInteraction : MonoBehaviour
             angle = -angle;
         }
         transform.Rotate(Vector3.up, angle);
+        Debug.Log("card was rotated");
     }
 
     public IEnumerator FlipCard()
