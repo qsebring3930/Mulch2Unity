@@ -86,7 +86,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5153013216210348947}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: b0ed824ae1790bc4092fba2339c8618c, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -109,8 +109,8 @@ Rigidbody:
   m_GameObject: {fileID: 5153013216210348947}
   serializedVersion: 4
   m_Mass: 0.05
-  m_Drag: 0.1
-  m_AngularDrag: 0.05
+  m_Drag: 1.5
+  m_AngularDrag: 0.25
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -139,10 +139,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1eaa8b8696047f44087e0d21e14ce6f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rb: {fileID: 0}
   isFlipped: 0
   lastClick: 0
   doubleClick: 0.25
   flipDuration: 0.25
   floatDuration: 0.25
-  cardPos: {x: 0, y: 0, z: 0}
+  minYPosition: 0
