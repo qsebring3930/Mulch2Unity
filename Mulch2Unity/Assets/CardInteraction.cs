@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class CardInteraction : MonoBehaviour
 {
+    public static CardInteraction currentlyHeldCard;
+
     public bool isFlipped = false;
     public float lastClick = 0f;
     public float doubleClick = 0.25f;
@@ -16,8 +18,6 @@ public class CardInteraction : MonoBehaviour
 
     // Set the minimum allowed y position (tabletop level)
     public float minYPosition = 0f;
-
-    private bool isheld = false;
 
     void Start()
     {
@@ -32,7 +32,7 @@ public class CardInteraction : MonoBehaviour
 
     void OnMouseOver()
     {
-        if (!isheld)
+        if (currentlyHeldCard == null)
         {
             HandleKeys();
         }
@@ -63,8 +63,9 @@ public class CardInteraction : MonoBehaviour
 
     void OnMouseDrag()
     {
+        Debug.Log("card is being held: " + gameObject.name);
         // Follow the mouse position
-        isheld = true;
+        currentlyHeldCard = this;
         Vector3 newPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition - mousePosition);
 
         // Clamp the y position to prevent the card from going below the tabletop
@@ -82,6 +83,7 @@ public class CardInteraction : MonoBehaviour
             rb.isKinematic = false; // Re-enable physics when releasing
             rb.detectCollisions = true;
         }
+        currentlyHeldCard = null;
     }
 
     public void HandleKeys()
@@ -108,7 +110,6 @@ public class CardInteraction : MonoBehaviour
             angle = -angle;
         }
         transform.Rotate(Vector3.up, angle);
-        Debug.Log("card was rotated");
     }
 
     public IEnumerator FlipCard()
@@ -144,7 +145,10 @@ public class CardInteraction : MonoBehaviour
         }
 
         transform.rotation = finRot;
-        rb.isKinematic = false;
-        rb.detectCollisions = true;
+        if (currentlyHeldCard != this)
+        {
+            rb.isKinematic = false;
+            rb.detectCollisions = true;
+        }
     }
 }
