@@ -163,7 +163,8 @@ public class CameraController : MonoBehaviour
 
         // Smoothly interpolate to the target rotation
         transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * lookSpeed);
-        Debug.Log("Camer rotation is" + transform.rotation.eulerAngles);
+        transform.rotation = Quaternion.Euler(transform.localEulerAngles.x, transform.localEulerAngles.y, 0); // stabilize the rotation to always stay parallel to horizon
+        Debug.Log("Camera rotation is" + transform.rotation.eulerAngles);
     }
 
     private bool IsMouseOverTabletop()

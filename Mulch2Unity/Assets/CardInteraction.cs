@@ -16,8 +16,13 @@ public class CardInteraction : MonoBehaviour
     private Vector3 mousePosition;
     private Rigidbody rb;
 
-    // Set the minimum allowed y position (tabletop level)
-    public float minYPosition = 0f;
+    private float minYPosition = 0f;
+    private float maxYPosition = 2f;
+    private float minXPosition = -12.5f;
+    private float maxXPosition = 12.5f;
+    private float minZPosition = -30f;
+    private float maxZPosition = 32f;
+
 
     void Start()
     {
@@ -63,13 +68,20 @@ public class CardInteraction : MonoBehaviour
 
     void OnMouseDrag()
     {
-        Debug.Log("card is being held: " + gameObject.name);
+        Debug.Log("card that is being held coordinates: " + transform.position);
         // Follow the mouse position
         currentlyHeldCard = this;
         Vector3 newPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition - mousePosition);
 
         // Clamp the y position to prevent the card from going below the tabletop
         newPosition.y = Mathf.Max(newPosition.y, minYPosition);
+        newPosition.y = Mathf.Min(newPosition.y, maxYPosition);
+        // Clamp the x position to prevent cards from leaving the tabletop
+        newPosition.x = Mathf.Max(newPosition.x, minXPosition);
+        newPosition.x = Mathf.Min(newPosition.x, maxXPosition);
+        // Clamp the z position to prevent cards from leaving the tabletop
+        newPosition.z = Mathf.Max(newPosition.z, minZPosition);
+        newPosition.z = Mathf.Min(newPosition.z, maxZPosition);
 
         transform.position = newPosition;
 
