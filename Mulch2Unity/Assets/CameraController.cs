@@ -90,7 +90,7 @@ public class CameraController : MonoBehaviour
         // Check if the mouse is inside the bounding box
         if (IsMouseInsideBoundingBox(currentMousePos))
         {
-            isRotating = false; // Stop rotation when the mouse is inside the bounding box
+            isRotating = false;// Stop rotation when the mouse is inside the bounding box
             return;
         }
 
