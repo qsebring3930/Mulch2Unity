@@ -27,7 +27,7 @@ public class DeckManager : MonoBehaviour
                 rb.isKinematic = true;
             }
 
-            card.name = "Acorn Card (" + i + ")";
+            card.name = "Card (" + i + ")";
             card.transform.SetParent(this.transform);
 
             deck.Add(card);
