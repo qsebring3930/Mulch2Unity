@@ -1,9 +1,10 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class MainMenuController : MonoBehaviour
+public class MenuController : MonoBehaviour
 {
-    public GameObject quitDialog; // Assign the QuitConfirmationDialog in the Inspector.
+    public GameObject quitDialog;
+    public GameObject settingsDialog;
 
     public void LoadScene(string sceneName)
     {
@@ -14,6 +15,16 @@ public class MainMenuController : MonoBehaviour
     {
         // Show the confirmation dialog
         quitDialog.SetActive(true);
+    }
+
+    public void Settings()
+    {
+        settingsDialog.SetActive(true);
+    }
+
+    public void ExitSettings()
+    {
+        settingsDialog.SetActive(false);
     }
 
     public void ConfirmQuit()
