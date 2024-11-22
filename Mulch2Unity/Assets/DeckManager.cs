@@ -18,8 +18,8 @@ public class DeckManager : MonoBehaviour
     {
         for (int i = 0; i < cardPrefabs.Length; i++)
         {
-            Vector3 cardPos = new Vector3(0, 1 + i * 0.05f, 0);
-            Quaternion cardRot = Quaternion.Euler(0, 0, 180);
+            Vector3 cardPos = new Vector3(transform.position.x, 0.025f + i * 0.025f, transform.position.z);
+            Quaternion cardRot = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 180);
             GameObject card = Instantiate(cardPrefabs[i], cardPos, cardRot);
             Rigidbody rb = card.GetComponent<Rigidbody>();
             if (rb != null)
