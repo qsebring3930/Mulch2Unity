@@ -7,8 +7,9 @@ public class CameraController : MonoBehaviour
     public float moveSpeed = 1f; // Speed of camera movement
     public float lookSpeed = 100f; // Slow down the mouse look for more controlled rotation
     public float verticalMoveSpeed = 2f; // Speed of moving up and down
-    
-    public LayerMask tabletopLayer; // Layer for the tabletop
+
+    public LayerMask environmentLayer; // Layer of the environment objects
+    public float collisionBuffer = 0.5f; //Distance between camera and object where it should stop moving
 
     public float edgeThreshold = 0.05f; // Percentage of the screen width/height where camera starts rotating
     public float screenPadding = 0.1f; // Percentage of screen where the camera should start rotating
@@ -32,7 +33,7 @@ public class CameraController : MonoBehaviour
         targetPosition = transform.position;
 
         // Get camera's local forward and right vectors
-        Vector3 forward = transform.TransformDirection(Vector3.forward); 
+        Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
 
         // Zero out the Y component to restrict movement to X and Z
@@ -61,6 +62,19 @@ public class CameraController : MonoBehaviour
             targetPosition += right * 10f; // Move right
         }
 
+        Vector3 direction = targetPosition - transform.position;
+        float distance = direction.magnitude;
+
+        if (distance > 0)
+        {
+            Ray ray = new Ray(transform.position, direction.normalized);
+            if (Physics.Raycast(ray, out RaycastHit hit, distance + collisionBuffer, environmentLayer))
+            {
+                // Adjust the target position to avoid collision
+                targetPosition = hit.point - direction.normalized * collisionBuffer;
+            }
+        }
+
         transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * moveSpeed);
 
         // Left mouse button for dragging movement
@@ -79,7 +93,23 @@ public class CameraController : MonoBehaviour
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         if (scroll != 0f)
         {
-            transform.position += new Vector3(0, scroll * verticalMoveSpeed, 0);
+            // Determine the direction of movement (up or down)
+        Vector3 verticalMovement = new Vector3(0, scroll * verticalMoveSpeed, 0);
+        Vector3 desiredPosition = transform.position + verticalMovement;
+
+        // Raycast in the direction of movement (up or down)
+        Vector3 rayDirection = verticalMovement.normalized;
+        float rayDistance = Mathf.Abs(verticalMovement.y) + collisionBuffer;
+
+        Ray ray = new Ray(transform.position, rayDirection);
+        if (Physics.Raycast(ray, out RaycastHit hit, rayDistance, environmentLayer))
+        {
+            // Adjust the desired position to maintain a buffer distance from the collision point
+            desiredPosition.y = hit.point.y - rayDirection.y * collisionBuffer;
+        }
+
+        // Smoothly move the camera to the desired position
+        transform.position = Vector3.Lerp(transform.position, desiredPosition, Time.deltaTime * moveSpeed);
         }
     }
 
@@ -174,7 +204,7 @@ public class CameraController : MonoBehaviour
         if (Physics.Raycast(ray, out hit))
         {
             // Check if the raycast hit the tabletop
-            return hit.collider != null && (tabletopLayer & (1 << hit.collider.gameObject.layer)) != 0;
+            //return hit.collider != null && (tabletopLayer & (1 << hit.collider.gameObject.layer)) != 0;
         }
         return false;
     }
