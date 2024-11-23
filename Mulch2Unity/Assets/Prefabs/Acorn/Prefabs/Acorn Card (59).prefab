@@ -60,6 +60,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Acorn Card (59)
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 76fbfa4a48c3a204db2cfcfff131039e, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 1151388028547126963, guid: 76fbfa4a48c3a204db2cfcfff131039e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -67,6 +71,10 @@ PrefabInstance:
     - target: {fileID: 1151388028547126963, guid: 76fbfa4a48c3a204db2cfcfff131039e, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8164078558771037576, guid: 76fbfa4a48c3a204db2cfcfff131039e, type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -152,4 +160,3 @@ MonoBehaviour:
   doubleClick: 0.25
   flipDuration: 0.25
   floatDuration: 0.25
-  minYPosition: 0

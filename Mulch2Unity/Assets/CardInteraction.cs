@@ -68,7 +68,6 @@ public class CardInteraction : MonoBehaviour
 
     void OnMouseDrag()
     {
-        Debug.Log("card that is being held coordinates: " + transform.position);
         // Follow the mouse position
         currentlyHeldCard = this;
         Vector3 newPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition - mousePosition);
@@ -107,7 +106,7 @@ public class CardInteraction : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.E)) // Rotate right by 45 degrees
         {
             RotateCard(-45f);
-            
+
         } else if (Input.GetKeyDown(KeyCode.F))
         {
             StartCoroutine(FlipCard());
