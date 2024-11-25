@@ -7,36 +7,24 @@ public class MultiSelectTool : MonoBehaviour
     public RectTransform dragBox; // Reference to the UI Image used as the drag box
     public Camera mainCamera; // Reference to the main camera
     public LayerMask selectableLayer; // Layer for the selectable cards
-    public LayerMask environmentLayer; // Layer for the environment where the tool can be activated
     public Color highlightColor = Color.yellow; // Color for highlighting selected objects
+
     private Vector2 startMousePos;
     private List<Renderer> highlightedObjects = new List<Renderer>();
     private bool isDragging = false;
 
-    void Update()
+    void OnMouseDown()
     {
-        HandleInput();
+        // Start dragging
+        isDragging = true;
+        startMousePos = Input.mousePosition;
+        dragBox.gameObject.SetActive(true);
+        dragBox.sizeDelta = Vector2.zero; // Reset the size
     }
-    private void HandleInput()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
-            {
-                if (hit.transform.gameObject.layer == 6)
-                {
-                    // Start dragging only if the mouse is over the environment
-                    isDragging = true;
-                    startMousePos = Input.mousePosition;
-                    dragBox.gameObject.SetActive(true);
-                    dragBox.sizeDelta = Vector2.zero; // Reset the size
-                }
-            }
-        }
 
-        if (Input.GetMouseButton(0) && isDragging)
+    void OnMouseDrag()
+    {
+        if (isDragging)
         {
             // Update the drag box size and position
             Vector2 currentMousePos = Input.mousePosition;
@@ -69,15 +57,22 @@ public class MultiSelectTool : MonoBehaviour
             dragBox.localPosition = boxPosition;
             dragBox.sizeDelta = boxSize;
         }
+    }
 
-        if (Input.GetMouseButtonUp(0) && isDragging)
+    void OnMouseUp()
+    {
+        if (isDragging)
         {
             // End dragging
             isDragging = false;
             dragBox.gameObject.SetActive(false);
+
+            // Perform selection
+            Vector2 boxStart = startMousePos;
+            Vector2 boxEnd = Input.mousePosition;
+            HighlightObjectsInBox(boxStart, boxEnd);
         }
     }
-
 
     private void HighlightObjectsInBox(Vector2 boxStart, Vector2 boxEnd)
     {
@@ -110,23 +105,6 @@ public class MultiSelectTool : MonoBehaviour
                 renderer.material.color = highlightColor; // Highlight the object
                 highlightedObjects.Add(renderer);
             }
-            Debug.Log("Object in box is: " + obj.gameObject.name);
-        }
-    }
-
-    private void OnDrawGizmos()
-    {
-        // For debugging the selection box in the scene view
-        if (isDragging)
-        {
-            Vector3 startWorld = mainCamera.ScreenToWorldPoint(new Vector3(startMousePos.x, startMousePos.y, 10f));
-            Vector3 endWorld = mainCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10f));
-
-            Bounds boxBounds = new Bounds();
-            boxBounds.SetMinMax(Vector3.Min(startWorld, endWorld), Vector3.Max(startWorld, endWorld));
-
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireCube(boxBounds.center, boxBounds.size);
         }
     }
 }
