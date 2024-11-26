@@ -8,6 +8,8 @@ public class CardInteraction : MonoBehaviour
 
     public bool isFlipped = false;
     public float lastClick = 0f;
+
+    //Time threshold for double click
     public float doubleClick = 0.25f;
 
     public float flipDuration = 0.25f;
@@ -16,6 +18,7 @@ public class CardInteraction : MonoBehaviour
     private Vector3 mousePosition;
     private Rigidbody rb;
 
+    // Bounds of the tabletop surface
     private float minYPosition = 0f;
     private float maxYPosition = 2f;
     private float minXPosition = -12.5f;
@@ -23,16 +26,37 @@ public class CardInteraction : MonoBehaviour
     private float minZPosition = -30f;
     private float maxZPosition = 32f;
 
+    private bool isHighlighted = false;
+
+    // Track relative positions of highlighted cards
+    private Dictionary<CardInteraction, Vector3> highlightedOffsets = new Dictionary<CardInteraction, Vector3>();
+
 
     void Start()
     {
         rb = GetComponent<Rigidbody>(); // Get the Rigidbody component
     }
 
+    public void SetHighlight(bool highlight)
+    {
+        isHighlighted = highlight;
+    }
+
     private Vector3 GetMousePos()
     {
         // Get the screen-space position of the object
         return Camera.main.WorldToScreenPoint(transform.position);
+    }
+
+    void Update()
+    {
+        if (currentlyHeldCard == null)
+        {
+            if (isHighlighted)
+            {
+                HandleKeys();
+            }
+        }
     }
 
     void OnMouseOver()
@@ -50,6 +74,18 @@ public class CardInteraction : MonoBehaviour
         // Check for double-click
         if (timeSinceLastClick <= doubleClick)
         {
+            if (isHighlighted)
+            {
+                foreach (CardInteraction card in FindObjectsOfType<CardInteraction>())
+                {
+                    if (card.isHighlighted && card != this)
+                    {
+                        Debug.Log("I'm flippin this other mf");
+                        StartCoroutine(card.FlipCard());
+                        card.isFlipped = !card.isFlipped;
+                    }
+                }
+            }
             StartCoroutine(FlipCard());
             isFlipped = !isFlipped;
         }
@@ -60,6 +96,20 @@ public class CardInteraction : MonoBehaviour
             {
                 rb.isKinematic = true; // Disable physics while holding
                 rb.detectCollisions = false;
+            }
+            // Store offsets for all highlighted cards
+            if (isHighlighted)
+            {
+                highlightedOffsets.Clear();
+                foreach (CardInteraction card in FindObjectsOfType<CardInteraction>())
+                {
+                    if (card.isHighlighted && card != this)
+                    {
+                        highlightedOffsets[card] = card.transform.position - transform.position;
+                        card.rb.isKinematic = true;
+                        card.rb.detectCollisions = false;
+                    }
+                }
             }
         }
 
@@ -84,6 +134,14 @@ public class CardInteraction : MonoBehaviour
 
         transform.position = newPosition;
 
+        // Move highlighted cards relative to the dragged card
+        foreach (var pair in highlightedOffsets)
+        {
+            CardInteraction card = pair.Key;
+            Vector3 offset = pair.Value;
+            card.transform.position = newPosition + offset;
+        }
+
         HandleKeys();
     }
 
@@ -94,6 +152,21 @@ public class CardInteraction : MonoBehaviour
             rb.isKinematic = false; // Re-enable physics when releasing
             rb.detectCollisions = true;
         }
+
+        if (isHighlighted)
+        {
+            foreach (CardInteraction card in FindObjectsOfType<CardInteraction>())
+            {
+                if (card.isHighlighted && card != this)
+                {
+                    card.rb.isKinematic = false;
+                    card.rb.detectCollisions = true;
+                }
+            }
+            highlightedOffsets.Clear();
+        }
+
+
         currentlyHeldCard = null;
     }
 
@@ -101,14 +174,37 @@ public class CardInteraction : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Q)) // Rotate left by 45 degrees
         {
-            RotateCard(45f);
+            if (isHighlighted)
+            {
+                RotateHighlightedCards(45);
+            } else
+            {
+                RotateCard(45f);
+            }
         }
         else if (Input.GetKeyDown(KeyCode.E)) // Rotate right by 45 degrees
         {
-            RotateCard(-45f);
+            if(isHighlighted)
+            {
+                RotateHighlightedCards(-45f);
+            } else
+            {
+                RotateCard(-45f);
+            }
 
         } else if (Input.GetKeyDown(KeyCode.F))
         {
+            if (isHighlighted)
+            {
+                foreach (CardInteraction card in FindObjectsOfType<CardInteraction>())
+                {
+                    if (card.isHighlighted && card != this)
+                    {
+                        StartCoroutine(card.FlipCard());
+                        card.isFlipped = !card.isFlipped;
+                    }
+                }
+            }
             StartCoroutine(FlipCard());
             isFlipped = !isFlipped;
         }
@@ -121,6 +217,48 @@ public class CardInteraction : MonoBehaviour
             angle = -angle;
         }
         transform.Rotate(Vector3.up, angle);
+    }
+
+    public void RotateHighlightedCards(float angle)
+    {
+        // Find all highlighted cards
+        List<CardInteraction> highlightedCards = new List<CardInteraction>();
+        foreach (CardInteraction card in FindObjectsOfType<CardInteraction>())
+        {
+            if (card.isHighlighted)
+            {
+                highlightedCards.Add(card);
+            }
+        }
+
+        if (highlightedCards.Count == 0) return;
+
+        // Create a temporary parent object at the center of all highlighted cards
+        Vector3 pivot = Vector3.zero;
+        foreach (CardInteraction card in highlightedCards)
+        {
+            pivot += card.transform.position;
+        }
+        pivot /= highlightedCards.Count; // Average position
+
+        GameObject tempParent = new GameObject("TempParent");
+        tempParent.transform.position = pivot;
+
+        // Parent all highlighted cards to the temporary parent
+        foreach (CardInteraction card in highlightedCards)
+        {
+            card.transform.SetParent(tempParent.transform);
+        }
+
+        // Rotate the temporary parent
+        tempParent.transform.Rotate(Vector3.up, angle);
+
+        // Unparent the cards and destroy the temporary parent
+        foreach (CardInteraction card in highlightedCards)
+        {
+            card.transform.SetParent(null);
+        }
+        Destroy(tempParent);
     }
 
     public IEnumerator FlipCard()

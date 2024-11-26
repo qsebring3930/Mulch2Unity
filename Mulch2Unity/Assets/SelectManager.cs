@@ -21,7 +21,6 @@ public class SelectManager : MonoBehaviour
     public float selectUnderMouseTimer = 0.1f;
 
     private float selectTimer = 0f;
-    private bool selecting = false;
 
     public List<SelectableCharacter> selectableChars = new List<SelectableCharacter>();
     private List<SelectableCharacter> selectedArmy = new List<SelectableCharacter>();
@@ -49,6 +48,11 @@ public class SelectManager : MonoBehaviour
 
     void OnMouseDown()
     {
+        // Update selectable cards
+        selectableChars = new List<SelectableCharacter>();
+        SelectableCharacter[] chars = FindObjectsOfType<SelectableCharacter>();
+        selectableChars.AddRange(chars);
+
         // Start selection on the tabletop
         ReSelect();
 
@@ -61,7 +65,6 @@ public class SelectManager : MonoBehaviour
 
     void OnMouseDrag()
     {
-        selecting = true;
 
         // Update the selection box
         SelectingArmy();
@@ -75,8 +78,6 @@ public class SelectManager : MonoBehaviour
 
     void OnMouseUp()
     {
-        // End selection
-        selecting = false;
 
         if (SelectingBoxRect != null)
         {
