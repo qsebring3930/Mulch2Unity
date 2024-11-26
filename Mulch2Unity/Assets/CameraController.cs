@@ -186,7 +186,7 @@ public class CameraController : MonoBehaviour
         float verticalRotation = -exitDirection.y * edgeFactorY * 100; // Vertical rotation magnitude (invert Y)
 
         // Update the target vertical rotation, clamping to avoid flipping
-        verticalRotation = Mathf.Clamp(verticalRotation + transform.localEulerAngles.x, 0f, 60f);
+        verticalRotation = Mathf.Clamp(verticalRotation + transform.localEulerAngles.x, 0f, 90f);
 
         // Calculate the target rotation based on the input
         targetRotation = Quaternion.Euler(verticalRotation, transform.localEulerAngles.y + horizontalRotation, 0);

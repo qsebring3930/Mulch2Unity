@@ -5,6 +5,8 @@ using UnityEngine;
 public class CardInteraction : MonoBehaviour
 {
     public static CardInteraction currentlyHeldCard;
+    // Track if mouse is over any card
+    public static bool isMouseOver;
 
     public bool isFlipped = false;
     public float lastClick = 0f;
@@ -48,23 +50,34 @@ public class CardInteraction : MonoBehaviour
         return Camera.main.WorldToScreenPoint(transform.position);
     }
 
+    /*
     void Update()
     {
-        if (currentlyHeldCard == null)
+        if (!isMouseOver) // Makes sure Update only handles cases not handled by OnMouseOver
         {
-            if (isHighlighted)
+            if (currentlyHeldCard == null) // Makes sure Update only handles cases not handled by OnMouseDrag
             {
-                HandleKeys();
+                if (isHighlighted) // Cases where a user can freely input keys only includes highlighted cards
+                {
+                    HandleKeys();
+                }
             }
         }
     }
+    */
 
     void OnMouseOver()
     {
+        isMouseOver = true;
         if (currentlyHeldCard == null)
         {
             HandleKeys();
         }
+    }
+
+    void OnMouseExit()
+    {
+        isMouseOver = false;
     }
 
     void OnMouseDown()
@@ -176,7 +189,7 @@ public class CardInteraction : MonoBehaviour
         {
             if (isHighlighted)
             {
-                RotateHighlightedCards(45);
+                RotateHighlightedCards(-45f);
             } else
             {
                 RotateCard(45f);
@@ -186,7 +199,7 @@ public class CardInteraction : MonoBehaviour
         {
             if(isHighlighted)
             {
-                RotateHighlightedCards(-45f);
+                RotateHighlightedCards(45f);
             } else
             {
                 RotateCard(-45f);
