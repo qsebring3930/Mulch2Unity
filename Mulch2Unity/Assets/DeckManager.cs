@@ -6,8 +6,8 @@ public class DeckManager : MonoBehaviour
 {
     public GameObject[] cardPrefabs;
     public List<GameObject> deck = new List<GameObject>();
-    public GameObject walkthroughParser;
     public GameObject[] numberCards;
+    public GameObject chitBag;
 
     // Start is called before the first frame update
     void Start()
@@ -22,6 +22,7 @@ public class DeckManager : MonoBehaviour
                     numbercard.SetActive(true);
                 }
             }
+            chitBag.SetActive(true);
         }
     }
 

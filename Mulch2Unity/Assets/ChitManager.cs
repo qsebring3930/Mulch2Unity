@@ -35,13 +35,6 @@ public class ChitManager : MonoBehaviour
             Vector3 hitPoint = ray.GetPoint(enter);
             dragOffset = transform.position - hitPoint;
         }
-
-        // Disable physics while dragging
-        if (rb != null)
-        {
-            rb.isKinematic = true;
-            rb.detectCollisions = false;
-        }
     }
 
     void OnMouseDrag()
