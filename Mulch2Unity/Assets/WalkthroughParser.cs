@@ -29,12 +29,14 @@ public class WalkthroughParser : MonoBehaviour
     {
         // Use regular expression to match placeCard commands, e.g., %placeCard(6)%
         string pattern = @"%placeCard\((\d+)\)%"; // Regex pattern to capture card number
+        Debug.Log("I am trying to match: " + fileContent);
         MatchCollection matches = Regex.Matches(fileContent, pattern);
 
         foreach (Match match in matches)
         {
             // Extract card number from the match
             string objectID = match.Groups[1].Value;
+            Debug.Log("I want to place:" + objectID);
 
             // Call the method to place the card on the table
             PlaceCardOnTable(objectID);

@@ -17,8 +17,11 @@ public class CardInteraction : MonoBehaviour
     public float flipDuration = 0.25f;
     public float floatDuration = 0.25f;
 
-    private Vector3 mousePosition;
     private Rigidbody rb;
+
+    private Vector3 dragOffset;
+    private Plane dragPlane;
+    private Vector3 mousePosition;
 
     // Bounds of the tabletop surface
     private float minYPosition = 0f;
@@ -88,13 +91,28 @@ public class CardInteraction : MonoBehaviour
         }
         else
         {
-            mousePosition = Input.mousePosition - GetMousePos(); // Store the offset for dragging
+            // Create a plane where the card is currently located
+            dragPlane = new Plane(Vector3.up, transform.position);
+            mousePosition = Input.mousePosition - GetMousePos();
+
+            // Ray from the camera to the mouse position
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            // Calculate the drag offset using the intersection point of the ray and the plane
+            if (dragPlane.Raycast(ray, out float enter))
+            {
+                Vector3 hitPoint = ray.GetPoint(enter);
+                dragOffset = transform.position - hitPoint;
+            }
+
+            // Disable physics while dragging
             if (rb != null)
             {
-                rb.isKinematic = true; // Disable physics while holding
+                rb.isKinematic = true;
                 rb.detectCollisions = false;
             }
-            // Store offsets for all highlighted cards
+
+            // Store offsets for highlighted cards
             if (isHighlighted)
             {
                 highlightedOffsets.Clear();
@@ -115,28 +133,40 @@ public class CardInteraction : MonoBehaviour
 
     void OnMouseDrag()
     {
-        // Follow the mouse position
         currentlyHeldCard = this;
-        Vector3 newPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition - mousePosition);
 
-        // Clamp the y position to prevent the card from going below the tabletop
-        newPosition.y = Mathf.Max(newPosition.y, minYPosition);
-        newPosition.y = Mathf.Min(newPosition.y, maxYPosition);
-        // Clamp the x position to prevent cards from leaving the tabletop
-        newPosition.x = Mathf.Max(newPosition.x, minXPosition);
-        newPosition.x = Mathf.Min(newPosition.x, maxXPosition);
-        // Clamp the z position to prevent cards from leaving the tabletop
-        newPosition.z = Mathf.Max(newPosition.z, minZPosition);
-        newPosition.z = Mathf.Min(newPosition.z, maxZPosition);
+        // Ray from the camera to the mouse position
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        transform.position = newPosition;
+        Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition - mousePosition);
 
-        // Move highlighted cards relative to the dragged card
-        foreach (var pair in highlightedOffsets)
+        // Get the current mouse world-space height, clamped within tabletop boundaries
+        float mouseHeight = Mathf.Clamp(mouseWorldPosition.y, minYPosition, maxYPosition);
+        
+        // Update the drag plane to match the clamped mouse height
+        dragPlane = new Plane(Vector3.up, new Vector3(0, mouseHeight, 0));
+
+        // Intersect ray with updated drag plane
+        if (dragPlane.Raycast(ray, out float enter))
         {
-            CardInteraction card = pair.Key;
-            Vector3 offset = pair.Value;
-            card.transform.position = newPosition + offset;
+            Vector3 hitPoint = ray.GetPoint(enter);
+            Vector3 targetPosition = hitPoint + dragOffset;
+
+            // Clamp the position to tabletop boundaries
+            targetPosition.x = Mathf.Clamp(targetPosition.x, minXPosition, maxXPosition);
+            targetPosition.y = Mathf.Clamp(targetPosition.y, minYPosition, maxYPosition);
+            targetPosition.z = Mathf.Clamp(targetPosition.z, minZPosition, maxZPosition);
+
+            // Update the card's position to the dynamically calculated height
+            transform.position = targetPosition;
+
+            // Move highlighted cards relative to the dragged card
+            foreach (var pair in highlightedOffsets)
+            {
+                CardInteraction card = pair.Key;
+                Vector3 offset = pair.Value;
+                card.transform.position = targetPosition + offset;
+            }
         }
 
         HandleKeys();
