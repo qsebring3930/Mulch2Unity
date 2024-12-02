@@ -50,22 +50,6 @@ public class CardInteraction : MonoBehaviour
         return Camera.main.WorldToScreenPoint(transform.position);
     }
 
-    /*
-    void Update()
-    {
-        if (!isMouseOver) // Makes sure Update only handles cases not handled by OnMouseOver
-        {
-            if (currentlyHeldCard == null) // Makes sure Update only handles cases not handled by OnMouseDrag
-            {
-                if (isHighlighted) // Cases where a user can freely input keys only includes highlighted cards
-                {
-                    HandleKeys();
-                }
-            }
-        }
-    }
-    */
-
     void OnMouseOver()
     {
         isMouseOver = true;

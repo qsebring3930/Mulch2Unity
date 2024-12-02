@@ -6,12 +6,23 @@ public class DeckManager : MonoBehaviour
 {
     public GameObject[] cardPrefabs;
     public List<GameObject> deck = new List<GameObject>();
+    public GameObject walkthroughParser;
+    public GameObject[] numberCards;
 
     // Start is called before the first frame update
     void Start()
     {
-        CreateDeck();
-        ShuffleDeck();
+        if (WalkthroughParser.walkthroughName == "None") {
+            CreateDeck();
+            ShuffleDeck();
+            if (numberCards != null)
+            {
+            foreach (GameObject numbercard in numberCards)
+                {
+                    numbercard.SetActive(true);
+                }
+            }
+        }
     }
 
     public void CreateDeck()

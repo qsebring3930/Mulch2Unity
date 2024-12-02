@@ -106,7 +106,8 @@ public class MenuController : MonoBehaviour
     private void OnButtonClick(string filePath)
     {
         Debug.Log($"Clicked: {filePath}");
-        // Add logic to load or display the walkthrough file
+        WalkthroughParser.walkthroughName = filePath;
+        this.LoadScene("sandbox");
     }
 
     public void HideWalkthroughs()
