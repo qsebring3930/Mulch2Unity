@@ -177,7 +177,7 @@ public class CameraController : MonoBehaviour
         float verticalRotation = -exitDirection.y * edgeFactorY * 100; // Vertical rotation magnitude (invert Y)
 
         // Update the target vertical rotation, clamping to avoid flipping
-        verticalRotation = Mathf.Clamp(verticalRotation + transform.localEulerAngles.x, 0f, 90f);
+        verticalRotation = Mathf.Clamp(verticalRotation + transform.localEulerAngles.x, 0f, 89.5f);
 
         // Calculate the target rotation based on the input
         targetRotation = Quaternion.Euler(verticalRotation, transform.localEulerAngles.y + horizontalRotation, 0);
@@ -190,6 +190,6 @@ public class CameraController : MonoBehaviour
     public void EagleEyeView()
     {
         transform.position = new Vector3(0,25,1);
-        transform.rotation = Quaternion.Euler(90,-90,0);
+        transform.rotation = Quaternion.Euler(89.5f,-90,0);
     }
 }
