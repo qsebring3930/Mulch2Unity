@@ -272,6 +272,19 @@ public class CardInteraction : MonoBehaviour
             card.transform.SetParent(null);
         }
         Destroy(tempParent);
+
+        // Update highlightedOffsets with new relative positions
+        if (highlightedCards.Contains(this)) // Ensure the current card is included
+        {
+            highlightedOffsets.Clear();
+            foreach (CardInteraction card in highlightedCards)
+            {
+                if (card != this)
+                {
+                    highlightedOffsets[card] = card.transform.position - transform.position;
+                }
+            }
+        }
     }
 
     public IEnumerator FlipCard()

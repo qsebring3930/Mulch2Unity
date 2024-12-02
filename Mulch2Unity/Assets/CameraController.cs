@@ -76,15 +76,6 @@ public class CameraController : MonoBehaviour
         }
 
         transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * moveSpeed);
-
-        // Left mouse button for dragging movement
-        //if (Input.GetMouseButton(0) && IsMouseOverTabletop())
-        //{
-        //float moveX = Input.GetAxis("Mouse X") * moveSpeed * Time.deltaTime;
-        //float moveY = Input.GetAxis("Mouse Y") * moveSpeed * Time.deltaTime;
-
-        //transform.Translate(-moveX, 0, -moveY); // Move the camera only in X and Z
-        //}
     }
 
     private void HandleVerticalMovement()
@@ -196,15 +187,9 @@ public class CameraController : MonoBehaviour
         transform.rotation = Quaternion.Euler(transform.localEulerAngles.x, transform.localEulerAngles.y, 0); // Stabilize the rotation of z-axis to always stay parallel to horizon
     }
 
-    private bool IsMouseOverTabletop()
+    public void EagleEyeView()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit))
-        {
-            // Check if the raycast hit the tabletop
-            //return hit.collider != null && (tabletopLayer & (1 << hit.collider.gameObject.layer)) != 0;
-        }
-        return false;
+        transform.position = new Vector3(0,25,1);
+        transform.rotation = Quaternion.Euler(90,-90,0);
     }
 }
