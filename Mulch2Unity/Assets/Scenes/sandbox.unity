@@ -96,7 +96,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: 2e47174e5d3554a4c90207aee549ac06, type: 2}
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
 NavMeshSettings:
@@ -1985,11 +1985,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 836093983}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 405, y: 165}
+  m_AnchorMin: {x: 0.85, y: 0.85}
+  m_AnchorMax: {x: 0.85, y: 0.85}
+  m_AnchoredPosition: {x: -12.5, y: -12.5}
   m_SizeDelta: {x: 25, y: 25}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0, y: 0}
 --- !u!114 &516150733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2587,9 +2587,9 @@ RectTransform:
   - {fileID: 718091794}
   m_Father: {fileID: 836093983}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 360, y: 165}
+  m_AnchorMin: {x: 0.8, y: 0.85}
+  m_AnchorMax: {x: 0.8, y: 0.85}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &567586563
@@ -5063,11 +5063,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 645562597995834877, guid: f0d6263bcfad8ad4888fe6db6253138c, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4516589377367252974, guid: f0d6263bcfad8ad4888fe6db6253138c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -10
+      value: -0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4516589377367252974, guid: f0d6263bcfad8ad4888fe6db6253138c, type: 3}
       propertyPath: m_LocalPosition.y
@@ -7583,6 +7583,10 @@ PrefabInstance:
     - target: {fileID: 8552847607074264487, guid: c66cf9cc42a8a5248975379bfb94eb29, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8552847607074264487, guid: c66cf9cc42a8a5248975379bfb94eb29, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -10876,6 +10880,7 @@ MonoBehaviour:
   minBoxSizeBeforeSelect: 1
   selectUnderMouseTimer: 0
   selectableChars: []
+  selectedArmy: []
 --- !u!1 &2032641094
 GameObject:
   m_ObjectHideFlags: 0

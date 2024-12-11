@@ -44,7 +44,7 @@ public class ChitManager : MonoBehaviour
             // Instantiate a random chit prefab
             int randomIndex = Random.Range(0, chitPrefabs.Count);
             GameObject chitPrefab = chitPrefabs[randomIndex];
-            currentChit = Instantiate(chitPrefab, mousePosition, Quaternion.identity);
+            currentChit = Instantiate(chitPrefab, mousePosition, Quaternion.Euler(0,-90,0));
             rb = currentChit.GetComponent<Rigidbody>();
             if (rb != null)
             {

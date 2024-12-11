@@ -14,10 +14,10 @@ public class CardSwapTool : MonoBehaviour
     {
         // Add a LineRenderer to visualize the rope
         lineRenderer = gameObject.AddComponent<LineRenderer>();
-        lineRenderer.material = new Material(Shader.Find("Unlit/Color"));
-        lineRenderer.material.color = Color.blue;
-        lineRenderer.startWidth = 0.05f;
-        lineRenderer.endWidth = 0.05f;
+        lineRenderer.material = new Material(Shader.Find("Unlit/Texture"));
+        lineRenderer.material.SetColor("_Color", Color.blue);
+        lineRenderer.startWidth = 0.25f;
+        lineRenderer.endWidth = 0.25f;
         lineRenderer.enabled = false;
     }
 
@@ -49,7 +49,7 @@ public class CardSwapTool : MonoBehaviour
             {
                 isToolActive = true;
                 lineRenderer.enabled = true;
-                lineRenderer.SetPosition(0, firstCard.transform.position); // Start of the rope
+                lineRenderer.SetPosition(0, firstCard.transform.position + new Vector3(0, .25f, 0)); // Start of the rope
             }
         }
     }
@@ -68,7 +68,7 @@ public class CardSwapTool : MonoBehaviour
         }
 
         // Update the LineRenderer
-        lineRenderer.SetPosition(1, mouseWorldPosition); // End of the rope
+        lineRenderer.SetPosition(1, mouseWorldPosition + new Vector3(0, .25f, 0)); // End of the rope
     }
 
     private void DeactivateTool()

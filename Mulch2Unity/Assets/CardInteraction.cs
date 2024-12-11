@@ -234,6 +234,21 @@ public class CardInteraction : MonoBehaviour
             }
             StartCoroutine(FlipCard());
             isFlipped = !isFlipped;
+        } else if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            SelectableCharacter ring = gameObject.GetComponentInChildren<SelectableCharacter>();
+            SelectManager controller = FindObjectsOfType<SelectManager>()[0];
+            if (isHighlighted)
+            {
+                controller.selectedArmy.Remove(ring);
+                ring.TurnOffSelector();
+            }
+            else
+            {
+                controller.selectedArmy.Add(ring);
+                ring.TurnOnSelector();
+            }
+            return;
         }
     }
 

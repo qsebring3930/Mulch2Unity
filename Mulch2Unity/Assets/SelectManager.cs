@@ -23,7 +23,7 @@ public class SelectManager : MonoBehaviour
     private float selectTimer = 0f;
 
     public List<SelectableCharacter> selectableChars = new List<SelectableCharacter>();
-    private List<SelectableCharacter> selectedArmy = new List<SelectableCharacter>();
+    public List<SelectableCharacter> selectedArmy = new List<SelectableCharacter>();
 
     private void Awake()
     {
@@ -93,6 +93,7 @@ public class SelectManager : MonoBehaviour
         foreach (SelectableCharacter character in selectedArmy)
         {
             character.TurnOffSelector();
+            print("This character: " + character + " is in the army");
         }
         selectedArmy.Clear();
     }
